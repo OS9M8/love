@@ -1,0 +1,126 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مفاجأة نورة 🍒</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+<canvas id="game" width="320" height="320"></canvas>
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const tileSize = 32;
+const rows = 10;
+const cols = 10;
+
+// جدران المتاهة (1 = جدار، 0 = طريق)
+const maze = [
+    [1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,1,0,0,0,0,1],
+    [1,0,1,0,1,0,1,1,0,1],
+    [1,0,1,0,0,0,0,1,0,1],
+    [1,0,1,1,1,1,0,1,0,1],
+    [1,0,0,0,0,1,0,1,0,1],
+    [1,1,1,1,0,1,0,1,0,1],
+    [1,0,0,1,0,1,0,0,0,1],
+    [1,0,0,0,0,1,0,1,0,1],
+    [1,1,1,1,1,1,1,1,1,1],
+];
+
+let snake = [{ x: 1, y: 1 }];
+let cherry = { x: 8, y: 8 };
+let dx = 0;
+let dy = 0;
+let gameOver = false;
+
+function drawTile(x, y, color, image = null) {
+    if (image) {
+        ctx.drawImage(image, x * tileSize, y * tileSize, tileSize, tileSize);
+    } else {
+        ctx.fillStyle = color;
+        ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+    }
+}
+
+const wallColor = "#6e5f57";
+const cherryImg = new Image();
+const snakeImg = new Image();
+cherryImg.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Cherry_Stella444.jpg/48px-Cherry_Stella444.jpg";
+snakeImg.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Yellow_snake_icon.png/48px-Yellow_snake_icon.png";
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+            if (maze[y][x] === 1) {
+                drawTile(x, y, wallColor);
+            }
+        }
+    }
+
+    snake.forEach((segment, i) => {
+        drawTile(segment.x, segment.y, "", snakeImg);
+    });
+
+    drawTile(cherry.x, cherry.y, "", cherryImg);
+}
+
+function move() {
+    if (gameOver) return;
+
+    const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+    // التحقق من الاصطدام
+    if (
+        head.x < 0 || head.y < 0 || head.x >= cols || head.y >= rows ||
+        maze[head.y][head.x] === 1
+    ) return;
+
+    snake.unshift(head);
+
+    if (head.x === cherry.x && head.y === cherry.y) {
+        setTimeout(() => {
+            alert("إنتِ مش بس أغلى وأحن إنسانة عرفتها، إنتِ معنى الحب الحقيقي لكل مشاعري. وجودك بحياتي هو أروع نعمة، وأنتِ أجمل هدية من رب العالمين. حبك يسكن روحي ويخليني أحس بالأمان والسعادة اللي ما حسيت بيها مع أحد قبل ...\n\nاحبك مامتي 🥹🤍");
+        }, 100);
+        gameOver = true;
+    } else {
+        snake.pop();
+    }
+}
+
+window.addEventListener("keydown", e => {
+    switch (e.key) {
+        case "ArrowUp": dx = 0; dy = -1; break;
+        case "ArrowDown": dx = 0; dy = 1; break;
+        case "ArrowLeft": dx = -1; dy = 0; break;
+        case "ArrowRight": dx = 1; dy = 0; break;
+    }
+});
+
+function gameLoop() {
+    move();
+    draw();
+    if (!gameOver) {
+        setTimeout(gameLoop, 200);
+    }
+}
+
+gameLoop();
+</script>
+</body>
+</html>
